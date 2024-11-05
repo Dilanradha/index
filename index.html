@@ -3,35 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>Signature Pad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        h2 {
+            text-align: center;
+            color: #007bff;
+        }
+        #signature-pad-container {
+            width: 90%;
+            max-width: 400px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+        }
         #signature-pad {
             border: 1px solid #ccc;
             width: 100%;
-            max-width: 400px;
-            height: 200px;
-            margin: 0 auto;
+            height: 180px;
+            border-radius: 4px;
         }
         .button-container {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
+            justify-content: space-between;
+            margin-top: 15px;
         }
         button {
-            padding: 8px 16px;
+            flex: 1;
+            padding: 10px;
             font-size: 16px;
             cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            background-color: #007bff;
+            transition: background-color 0.3s ease;
+            margin: 0 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            background-color: #003d7a;
         }
     </style>
 </head>
 <body>
-    <h2 style="text-align: center;">Signature Pad</h2>
-    <div style="display: flex; justify-content: center;">
+    <h2>Signature Pad</h2>
+    <div id="signature-pad-container">
         <canvas id="signature-pad"></canvas>
-    </div>
-    <div class="button-container">
-        <button onclick="saveSignature()">Save Signature</button>
-        <button onclick="clearSignature()">Clear Signature</button>
+        <div class="button-container">
+            <button onclick="saveSignature()">Save</button>
+            <button onclick="clearSignature()">Clear</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
@@ -39,7 +75,7 @@
         const canvas = document.getElementById('signature-pad');
         const signaturePad = new SignaturePad(canvas);
 
-        // Adjust canvas dimensions to make it responsive
+        // Responsive canvas setup
         function resizeCanvas() {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
@@ -58,18 +94,17 @@
                 return;
             }
 
-            // Get the signature as a data URL
             const dataURL = signaturePad.toDataURL();
 
             // Send the signature to Google Sheets
-            fetch("https://script.google.com/macros/s/AKfycbw5HzYD3ydUnju5Iu8EW3cWb-Bl2xGQL2zNdSo0E2X1782xWhQsMzEKpEZFKGeXWbI/exec", {
+            fetch("https://script.google.com/macros/s/AKfycbx9DRXm0RnjfBxI5lcRtvIN3b2vXkm2nxBztiKh-v2-0AsDWaW0kLr971PbGRwKRdk/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ image: dataURL })
             }).then(response => {
                 alert("Signature saved!");
-                signaturePad.clear(); // Clear the signature after saving
+                signaturePad.clear(); // Clear after saving
             }).catch(error => {
                 console.error("Error:", error);
                 alert("Failed to save signature.");
