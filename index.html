@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signature Pad</title>
+    <style>
+        #signature-pad {
+            border: 1px solid #ccc;
+            width: 300px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Signature Pad</h2>
+    <canvas id="signature-pad"></canvas>
+    <button onclick="saveSignature()">Save Signature</button>
+    <button onclick="clearSignature()">Clear Signature</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script>
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas);
+
+        // Adjust canvas dimensions to make it responsive
+        function resizeCanvas() {
+            const ratio =  Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear(); // Clear the canvas after resizing
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        // Save signature
+        function saveSignature() {
+            if (signaturePad.isEmpty()) {
+                alert("Please provide a signature.");
+                return;
+            }
+
+            // Get the signature as a data URL
+            const dataURL = signaturePad.toDataURL();
+
+            // Send the signature to Google Sheets
+            fetch("https://script.google.com/macros/s/AKfycbyQTk6TZjOVyyxiSWQViPPIqL80OQm_WraDwo5ivvQN26dj7gbwlepGD3xp5enF0ks/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: dataURL })
+            }).then(response => {
+                alert("Signature saved!");
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Failed to save signature.");
+            });
+        }
+
+        // Clear signature pad
+        function clearSignature() {
+            signaturePad.clear();
+        }
+    </script>
+</body>
+</html>
