@@ -1,39 +1,162 @@
-// Modify resizeCanvas to prevent clearing on resize if there's a signature
-function resizeCanvas() {
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    canvas.width = canvas.offsetWidth * ratio;
-    canvas.height = canvas.offsetHeight * ratio;
-    canvas.getContext("2d").scale(ratio, ratio);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature Pad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            color: #fff;
+            text-align: center;
+        }
 
-    // Only clear if the canvas is empty
-    if (signaturePad.isEmpty()) {
-        signaturePad.clear();
-    }
-}
+        h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 20px;
+        }
 
-// Enhanced save function with loading indicator
-function saveSignature() {
-    if (signaturePad.isEmpty()) {
-        alert("Please provide a signature.");
-        return;
-    }
+        #signature-pad-container {
+            background: linear-gradient(135deg, #ff7f50, #ff6347);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-    const dataURL = signaturePad.toDataURL();
-    const loadingMessage = "Saving signature...";
-    
-    // Show loading message
-    alert(loadingMessage);
-    
-    fetch("https://script.google.com/macros/s/AKfycbw7iSTSWTxUBz5Lvt-dnwbM7rvead3_bHg6kiJMukorIJyhlKzcIgQlWeUwM5ZTlWg/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: dataURL })
-    }).then(response => {
-        alert("Signature saved!");
-        signaturePad.clear(); // Clear after saving
-    }).catch(error => {
-        console.error("Error:", error);
-        alert("Failed to save signature.");
-    });
-}
+        canvas {
+            border: 2px solid #fff;
+            width: 100%;
+            height: 60%;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-container {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            margin: 0 10px;
+            background-color: #ff6347;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ff4500;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            background-color: #ff3300;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            #signature-pad-container {
+                height: 90vh;
+            }
+
+            canvas {
+                height: 50%;
+            }
+
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Signature Pad</h2>
+    <div id="signature-pad-container">
+        <canvas id="signature-pad"></canvas>
+        <div class="button-container">
+            <button onclick="saveSignature()">Save</button>
+            <button onclick="clearSignature()">Clear</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script>
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas);
+
+        // Responsive canvas setup
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear(); // Clear the canvas after resizing
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        // Save signature
+        function saveSignature() {
+            if (signaturePad.isEmpty()) {
+                alert("Please provide a signature.");
+                return;
+            }
+
+            const dataURL = signaturePad.toDataURL();
+
+            // Send the signature to Google Sheets
+            fetch("https://script.google.com/macros/s/AKfycbxRTge2HsUXrIcCwCJB8wOuNIn6qkZayP-3pLpjxU4isbRa7HtJP04NiwVtzAGLtIE/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: dataURL })
+            }).then(response => {
+                alert("Signature saved!");
+                signaturePad.clear(); // Clear after saving
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Failed to save signature.");
+            });
+        }
+
+        // Clear signature pad
+        function clearSignature() {
+            signaturePad.clear();
+        }
+    </script>
+</body>
+</html>
