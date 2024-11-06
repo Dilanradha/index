@@ -149,27 +149,18 @@
             const dataURL = signaturePad.toDataURL();
 
             // Send the signature to Google Sheets
-            fetch("https://script.google.com/macros/s/AKfycbwBX_3E5CiCEWgH8fx_obeVG-_P6pUMs_wsoiQ009Jq6-2SJRUgHnE13QddaW31YBfu/exec", {
-    method: "POST",
-    mode: "cors",  // Change to "cors"
-    headers: { 
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"  // Optional: explicitly allow all origins
-    },
-    body: JSON.stringify({ image: dataURL })
-}).then(response => response.json())  // Parse the JSON response
-  .then(data => {
-    if (data.status === "success") {
-        alert("Signature saved!");
-        signaturePad.clear(); // Clear after saving
-    } else {
-        alert("Failed to save signature.");
-    }
-  })
-  .catch(error => {
-    console.error("Error:", error);
-    alert("Failed to save signature.");
-});
+            fetch("https://script.google.com/macros/s/AKfycbwKdUTXxE8w_y1mtZJm0G2O2JlisQCMQILf33RGt2lxxQajSqjdCoZkGqXJ_yl__JFp/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: dataURL })
+            }).then(response => {
+                alert("Signature saved!");
+                signaturePad.clear(); // Clear after saving
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Failed to save signature.");
+            });
         }
 
         // Clear the signature pad
