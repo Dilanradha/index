@@ -151,7 +151,6 @@
             // Send the signature to Google Sheets
             fetch("https://script.google.com/macros/s/AKfycbyuOZHV0riP5rPbbE3tOy-nH3EElYF0xrJSUNSVWPFomEgcombEcDtbQnxnzLbiiHfw/exec", {
                 method: "POST",
-                mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ image: dataURL })
             }).then(response => {
