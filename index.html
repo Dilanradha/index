@@ -151,16 +151,18 @@
             // Send the signature to Google Sheets
             fetch("https://script.google.com/macros/s/AKfycbyuOZHV0riP5rPbbE3tOy-nH3EElYF0xrJSUNSVWPFomEgcombEcDtbQnxnzLbiiHfw/exec", {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image: dataURL })
-            }).then(response => {
-                alert("Signature saved!");
-                signaturePad.clear(); // Clear after saving
-            }).catch(error => {
-                console.error("Error:", error);
-                alert("Failed to save signature.");
-            });
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: dataURL })
+})
+.then(response => response.json()) // You can access the response as JSON if CORS headers are set correctly
+.then(data => {
+    alert("Signature saved!");
+    signaturePad.clear();
+})
+.catch(error => {
+    console.error("Error:", error);
+    alert("Failed to save signature.");
+});
         }
 
         // Clear the signature pad
