@@ -149,21 +149,18 @@
             const dataURL = signaturePad.toDataURL();
 
             // Send the signature to Google Sheets
-            fetch("https://script.google.com/macros/s/AKfycbzgr-KORyuID3apMQ-S6OymuryiuFyljAdP8_hN_gbAdU9Ryu-r990OMqFt0cq7GFFa/exec", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ image: dataURL }) // Ensure `dataURL` contains the base64 image
-})
-.then(response => response.json())
-.then(data => {
-  alert("Signature saved successfully!");
-  signaturePad.clear();
-})
-.catch(error => {
-  console.error("Error:", error);
-  alert("Failed to save signature.");
-});
-
+            fetch("https://script.google.com/macros/s/AKfycby2m9fwyHm6nS6CT35t_RPelhQRxA9Hwt_jlxrnmUIGfxOE4-4lVkqHzR1yq48n1pZN/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: dataURL })
+            }).then(response => {
+                alert("Signature saved!");
+                signaturePad.clear(); // Clear after saving
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Failed to save signature.");
+            });
         }
 
         // Clear the signature pad
