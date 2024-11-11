@@ -149,7 +149,7 @@
             const dataURL = signaturePad.toDataURL();
 
             // Send the signature to Google Sheets
-            fetch("https://script.google.com/macros/s/AKfycby6O9DQh2KvVmzCUKvQRov7Gctgm0nlOHLmj8r4GS-PemoANNut4tpFrwRWxOTEXsmW/exec", {
+            fetch("https://script.google.com/macros/s/AKfycbyUO-ogrqlbTuzrykYL_kV2yzjrUga8o06CxsmDob1WBs94w4n0VNPf053IM8k1pFmh/exec", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ image: dataURL })
