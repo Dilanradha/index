@@ -11,7 +11,6 @@
             box-sizing: border-box;
         }
 
-        /* Basic reset for full-screen */
         html, body {
             height: 100%;
             width: 100%;
@@ -88,7 +87,6 @@
             transform: translateY(2px);
         }
 
-        /* Adjust button size and layout for smaller screens */
         @media (max-width: 600px) {
             h2 {
                 font-size: 2rem;
@@ -127,39 +125,44 @@
         const canvas = document.getElementById('signature-pad');
         const signaturePad = new SignaturePad(canvas);
 
-        // Make the canvas responsive for all screen sizes
+        // Make the canvas responsive
         function resizeCanvas() {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext("2d").scale(ratio, ratio);
-            signaturePad.clear(); // Clear the canvas after resizing
+            signaturePad.clear();
         }
 
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        // Save the signature and send it to the server
+        // Save the signature
         function saveSignature() {
             if (signaturePad.isEmpty()) {
                 alert("Please provide a signature.");
                 return;
             }
 
-            // Use toBlob() to create a smaller and compatible file format
+            // Convert canvas to blob and send it
             canvas.toBlob((blob) => {
                 const formData = new FormData();
                 formData.append("image", blob, "signature.png");
 
-                fetch("https://script.google.com/macros/s/AKfycbyHVMT0ViO0p0kOAl5RFy1WxvZhIWZtVXuGWGoaPrE7EwJnNwIAITaDyuL_HfjG2I_p/exec", {
+                fetch("https://script.google.com/macros/s/1jpHf1fWiSMsXzXQrbbeASMzK2VW2pDt_LG-ybFH-oA4/exec", {
                     method: "POST",
                     body: formData
-                }).then(response => {
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     alert("Signature saved!");
                     signaturePad.clear();
-                }).catch(error => {
+                })
+                .catch((error) => {
                     console.error("Error:", error);
-                    alert("Failed to save signature.");
+                    alert("Failed to save signature. Please check your internet connection and try again.");
                 });
             }, "image/png");
         }
