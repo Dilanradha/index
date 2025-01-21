@@ -11,6 +11,7 @@
             box-sizing: border-box;
         }
 
+        /* Basic reset for full-screen */
         html, body {
             height: 100%;
             width: 100%;
@@ -87,6 +88,7 @@
             transform: translateY(2px);
         }
 
+        /* Adjust button size and layout for smaller screens */
         @media (max-width: 600px) {
             h2 {
                 font-size: 2rem;
@@ -125,48 +127,40 @@
         const canvas = document.getElementById('signature-pad');
         const signaturePad = new SignaturePad(canvas);
 
-        // Make the canvas responsive
+        // Make the canvas responsive for all screen sizes
         function resizeCanvas() {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext("2d").scale(ratio, ratio);
-            signaturePad.clear();
+            signaturePad.clear(); // Clear the canvas after resizing
         }
 
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        // Save the signature
+        // Save the signature and send it to the server (Google Sheets)
         function saveSignature() {
             if (signaturePad.isEmpty()) {
                 alert("Please provide a signature.");
                 return;
             }
 
-            // Convert canvas to blob and send it
-            canvas.toBlob((blob) => {
-                const formData = new FormData();
-                formData.append("image", blob, "signature.png");
+            const dataURL = signaturePad.toDataURL();
 
-                fetch("https://script.google.com/macros/s/AKfycbxhcWWS_mVkcpGu71cExq8G9USdEiMMPYvFwdJ7Rdkc3K67sHghWKaJdVbhxfD5lGQq/exec", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image: dataURL })
-})
-
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    alert("Signature saved!");
-                    signaturePad.clear();
-                })
-                .catch((error) => {
-                    console.error("Error:", error);
-                    alert("Failed to save signature. Please check your internet connection and try again.");
-                });
-            }, "image/png");
+            // Send the signature to Google Sheets
+            fetch("https://script.google.com/macros/s/AKfycby7Pv4qLs0vC7g1ssj-a-bxE9lbYq-zpqiX4jtdyuZz17j-gP7jBbaRTJiLHBOCuQ7H/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: dataURL })
+            }).then(response => {
+                alert("Signature saved!");
+                signaturePad.clear(); // Clear after saving
+            }).catch(error => {
+                console.error("Error:", error);
+                alert("Failed to save signature.");
+            });
         }
 
         // Clear the signature pad
