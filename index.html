@@ -139,28 +139,29 @@
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        // Save the signature and send it to the server (Google Sheets)
+        // Save the signature and send it to the server
         function saveSignature() {
             if (signaturePad.isEmpty()) {
                 alert("Please provide a signature.");
                 return;
             }
 
-            const dataURL = signaturePad.toDataURL();
+            // Use toBlob() to create a smaller and compatible file format
+            canvas.toBlob((blob) => {
+                const formData = new FormData();
+                formData.append("image", blob, "signature.png");
 
-            // Send the signature to Google Sheets
-            fetch("https://script.google.com/macros/s/AKfycbyHVMT0ViO0p0kOAl5RFy1WxvZhIWZtVXuGWGoaPrE7EwJnNwIAITaDyuL_HfjG2I_p/exec", {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image: dataURL })
-            }).then(response => {
-                alert("Signature saved!");
-                signaturePad.clear(); // Clear after saving
-            }).catch(error => {
-                console.error("Error:", error);
-                alert("Failed to save signature.");
-            });
+                fetch("https://script.google.com/macros/s/AKfycbyHVMT0ViO0p0kOAl5RFy1WxvZhIWZtVXuGWGoaPrE7EwJnNwIAITaDyuL_HfjG2I_p/exec", {
+                    method: "POST",
+                    body: formData
+                }).then(response => {
+                    alert("Signature saved!");
+                    signaturePad.clear();
+                }).catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to save signature.");
+                });
+            }, "image/png");
         }
 
         // Clear the signature pad
