@@ -149,10 +149,12 @@
                 const formData = new FormData();
                 formData.append("image", blob, "signature.png");
 
-                fetch("https://script.google.com/macros/s/1jpHf1fWiSMsXzXQrbbeASMzK2VW2pDt_LG-ybFH-oA4/exec", {
-                    method: "POST",
-                    body: formData
-                })
+                fetch("https://script.google.com/macros/s/AKfycbxhcWWS_mVkcpGu71cExq8G9USdEiMMPYvFwdJ7Rdkc3K67sHghWKaJdVbhxfD5lGQq/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: dataURL })
+})
+
                 .then((response) => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
