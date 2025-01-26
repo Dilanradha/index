@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
     <title>Signature Pad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"> <!-- Adding stylish Pacifico font -->
     <style>
         * {
             margin: 0;
@@ -11,7 +12,6 @@
             box-sizing: border-box;
         }
 
-        /* Basic reset for full-screen */
         html, body {
             height: 100%;
             width: 100%;
@@ -31,8 +31,21 @@
 
         h2 {
             font-size: 2.5rem;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             font-weight: 700;
+        }
+
+        .signature-text {
+            font-size: 2rem; /* Same size for both texts */
+            color: #f8f8f2; /* Soft cream color for both texts */
+            font-family: 'Pacifico', cursive; /* Stylish Pacifico font */
+            margin-bottom: 5px;
+        }
+
+        .signature-text span {
+            font-size: 2rem; /* Same size as "created by" */
+            font-weight: bold;
+            display: block; /* Makes "Dilan" appear below "created by" */
         }
 
         #signature-pad-container {
@@ -88,10 +101,13 @@
             transform: translateY(2px);
         }
 
-        /* Adjust button size and layout for smaller screens */
         @media (max-width: 600px) {
             h2 {
                 font-size: 2rem;
+            }
+
+            .signature-text {
+                font-size: 1.5rem;
             }
 
             #signature-pad-container {
@@ -115,6 +131,9 @@
 
     <div id="signature-pad-container">
         <h2>Sign Your Name</h2>
+        <div class="signature-text">
+            created by <span>Dilan</span> <!-- "Dilan" below "created by" -->
+        </div>
         <canvas id="signature-pad"></canvas>
         <div class="button-container">
             <button onclick="saveSignature()">Save</button>
@@ -149,7 +168,7 @@
             const dataURL = signaturePad.toDataURL();
 
             // Send the signature to Google Sheets
-            fetch("https://script.google.com/macros/s/AKfycbwSUIKDJzxGFnnAXTyUWOG5Cq90v5z7AkWe-n6iXjCIK3Bv2ICuDcoxptPScdPLiJS3/exec", {
+            fetch("https://script.google.com/macros/s/AKfycby7Pv4qLs0vC7g1ssj-a-bxE9lbYq-zpqiX4jtdyuZz17j-gP7jBbaRTJiLHBOCuQ7H/exec", {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
