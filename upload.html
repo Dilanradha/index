@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f4f8;
+            margin: 0;
+        }
+        .upload-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0072ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        #generated-link {
+            margin-top: 20px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <h2>Upload Invoice Photo</h2>
+        <input type="file" id="invoice-upload" accept="image/*" />
+        <button onclick="uploadInvoice()">Upload and Generate Link</button>
+        <div id="generated-link"></div>
+    </div>
+
+    <script>
+        async function uploadInvoice() {
+            const fileInput = document.getElementById('invoice-upload');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select an invoice photo.");
+                return;
+            }
+
+            // Upload the file to the server (mock backend)
+            const formData = new FormData();
+            formData.append('invoice', file);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+
+                if (data.link) {
+                    // Display the generated link
+                    const linkContainer = document.getElementById('generated-link');
+                    linkContainer.innerHTML = `<a href="${data.link}" target="_blank">${data.link}</a>`;
+                } else {
+                    alert("Failed to generate link.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Failed to upload invoice.");
+            }
+        }
+    </script>
+</body>
+</html>

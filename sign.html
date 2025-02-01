@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f4f8;
+            margin: 0;
+        }
+        #signature-pad-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #ccc;
+            margin-top: 20px;
+            background-color: #fff;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #0072ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+    <div id="signature-pad-container">
+        <h2>Sign the Invoice</h2>
+        <img id="invoice-photo" src="" alt="Invoice Photo" style="max-width: 100%; height: auto;" />
+        <canvas id="signature-pad" width="400" height="200"></canvas>
+        <div>
+            <button onclick="saveSignature()">Save Signature</button>
+            <button onclick="clearSignature()">Clear</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+    <script>
+        // Get the invoice photo from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const invoiceUrl = urlParams.get('invoice');
+        if (invoiceUrl) {
+            document.getElementById('invoice-photo').src = invoiceUrl;
+        }
+
+        // Initialize the signature pad
+        const canvas = document.getElementById('signature-pad');
+        const signaturePad = new SignaturePad(canvas);
+
+        // Function to combine the invoice photo and signature
+        async function combineImages() {
+            const invoiceImg = document.getElementById('invoice-photo');
+            const signatureCanvas = document.getElementById('signature-pad');
+
+            // Create a new canvas to combine the images
+            const combinedCanvas = document.createElement('canvas');
+            const ctx = combinedCanvas.getContext('2d');
+
+            // Set the canvas size to match the invoice photo
+            combinedCanvas.width = invoiceImg.width;
+            combinedCanvas.height = invoiceImg.height;
+
+            // Draw the invoice photo on the canvas
+            ctx.drawImage(invoiceImg, 0, 0, invoiceImg.width, invoiceImg.height);
+
+            // Draw the signature on top of the invoice photo
+            const signatureImg = new Image();
+            signatureImg.src = signaturePad.toDataURL();
+            await new Promise((resolve) => {
+                signatureImg.onload = () => {
+                    ctx.drawImage(signatureImg, 0, 0, invoiceImg.width, invoiceImg.height);
+                    resolve();
+                };
+            });
+
+            // Return the combined image as a data URL
+            return combinedCanvas.toDataURL();
+        }
+
+        // Save the combined image to Google Sheets
+        async function saveSignature() {
+            if (signaturePad.isEmpty()) {
+                alert("Please provide a signature.");
+                return;
+            }
+
+            // Combine the invoice photo and signature
+            const combinedImage = await combineImages();
+
+            // Send the combined image to Google Sheets
+            fetch("https://script.google.com/macros/s/AKfycbwSUIKDJzxGFnnAXTyUWOG5Cq90v5z7AkWe-n6iXjCIK3Bv2ICuDcoxptPScdPLiJS3/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: combinedImage }),
+            })
+                .then(() => {
+                    alert("Signature saved!");
+                    signaturePad.clear();
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("Failed to save signature.");
+                });
+        }
+
+        // Clear the signature pad
+        function clearSignature() {
+            signaturePad.clear();
+        }
+    </script>
+</body>
+</html>
